@@ -15,7 +15,7 @@ interface State {
   password: string;
   passwordConfirmation: string;
 
-  //типы данных для сообщений об ошибках формы
+  // типы данных для сообщений об ошибках формы
   errors: {
     name?: string;
     login?: string;
@@ -60,10 +60,15 @@ class Registration extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any): void {
-    const { user } = this.props;
+    const { user, users } = this.props;
     
-    // первая проверка авторизации, при монтировании
+    // проверка авторизации, при монтировании
     !!user && (window.location.replace(`${this.baseUrl}${routes.login}`)); // хук useNavigate - не совместим с классовой компонентой
+
+    // проверка на обновленные данные в сторе users
+    if (users !== prevProps.users) {
+      localStorage.setItem('users', JSON.stringify(users));
+    }
   }
 
   // ввод новых изменений в state
@@ -89,7 +94,8 @@ class Registration extends React.Component<Props, State> {
     if (!this.state.login) {
       errors.login = "Поле Логин обязательно для заполнения";
     } else {
-      const loginVerification = users.some((item: ModifiedUserType) => item.name === this.state.login); // поиск идентичного логина среди имеющихся юзеров
+      // поиск идентичного логина среди имеющихся юзеров
+      const loginVerification = users.some((item: ModifiedUserType) => item.name === this.state.login);
       loginVerification && (errors.login = "Данный логин занят");
     }
 
@@ -130,7 +136,7 @@ class Registration extends React.Component<Props, State> {
     return (
       <div className="registration">
         {
-          !!isRegistrationSuccessful 
+          !!this.props.user 
           ? 
           <h1>Вы уже авторизованы</h1>
           :
@@ -138,7 +144,7 @@ class Registration extends React.Component<Props, State> {
             <h1>Registration</h1>
   
             {
-              isRegistrationSuccessful ?
+              this.props.user ?
               
               <div>
                 <span>регистрация прошла успешно.</span>

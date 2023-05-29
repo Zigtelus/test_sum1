@@ -7,27 +7,42 @@ import routes from "../../routes";
 
 
 interface Props {
-  authenticateUser: (data: null) => void; // разлогин
+  authenticateUser: (data: null) => void; 
 }
 
-class Profile extends React.Component<Props> {
-  componentDidMount = async () => {
-    const baseUrl = window.location.protocol + '//' + window.location.host;
-    const userString = localStorage.getItem("authenticateUser");
-    const user: UserType | null = userString ? JSON.parse(userString) : null;
-    
-    // первая проверка авторизации, при монтировании
-    !!user || (window.location.replace(`${baseUrl}${routes.login}`)); // хук useNavigate - не совместим с классовой компонентой
+interface State {
+  isRegistrationSuccessful: boolean;
+}
+
+class Profile extends React.Component<Props, State> {
+  baseUrl: string = window.location.protocol + '//' + window.location.host;
+
+  // получение данных о авторизации пользователя
+  userString: string | null= localStorage.getItem("authenticateUser") 
+
+  state: State = {
+    isRegistrationSuccessful: false
   };
 
-  handleLogout = () => {
+  componentDidMount = async () => {
+    const user: UserType | null = this.userString ? JSON.parse(this.userString) : null;
+    
+    // первая проверка авторизации пользователя, при монтировании компоненты
+    !!user || (window.location.replace(`${this.baseUrl}${routes.login}`)); // хук useNavigate - не совместим с классовой компонентой
+  };
+
+  handleLogout = async () => {
+    // удаление информации о авторизации пользователя
     localStorage.removeItem("authenticateUser");
     this.props.authenticateUser(null);
+
+    this.setState({isRegistrationSuccessful: false});
+    window.location.replace(`${this.baseUrl}${routes.login}`);
   };
 
   render() {
-    const userString = localStorage.getItem("authenticateUser");
-    const user: UserType | null = userString ? JSON.parse(userString) : null;
+    // получение данных о авторизованным пользователе
+    const user: UserType | null = this.userString ? JSON.parse(this.userString) : null; 
 
     return (
       <div>
@@ -44,6 +59,7 @@ class Profile extends React.Component<Props> {
           :
           <h1>Вы не авторизованы</h1>
         }
+        {this.state.isRegistrationSuccessful && <p>Регистрация прошла успешно!</p>}
       </div>
     );
   }
