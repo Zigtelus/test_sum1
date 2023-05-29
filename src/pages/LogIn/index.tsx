@@ -3,107 +3,93 @@ import './index.scss';
 import { connect } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { UserType, authenticateUser } from "../../redux/slices/users.slice";
-
+import routes from '../../routes';
 
 interface State {
-  // типы данных для хранения значений полей формы
   login: string;
   password: string;
   message: string;
+  isRegistrationSuccessful: boolean;
 }
 
 interface Props {
-  user: UserType | null; // авторизованный пользователь
+  user: UserType | null;
   authenticateUser: (data: { login: string; password: string }) => void;
 }
 
 class LogIn extends React.Component<Props, State> {
+  baseUrl: string = window.location.protocol + '//' + window.location.host;
+
   constructor(props: Props) {
     super(props);
     this.state = {
       login: '',
       password: '',
-      message: ''
+      message: '',
+      isRegistrationSuccessful: false,
     };
   }
 
   componentDidMount = async () => {
     const user: string | null = localStorage.getItem("authenticateUser");
 
-    // первая проверка авторизации, при монтировании
     if (!!user) {
-      (window.location.replace('/profile')); // хук useNavigate - не совместим с классовой компонентой
-      this.setState({message: 'Вы уже авторизованы'})
+      this.setState({ message: 'Вы уже авторизованы', isRegistrationSuccessful: true });
+      window.location.replace(`${this.baseUrl}${routes.profile}`);
     }
   };
 
-  // Обработчик изменений полей формы
   handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.setState({ [name]: value } as unknown as State);
   };
 
-  // Обработчик отправки формы
   handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { login, password } = this.state;
 
-    // проверка на ввод логина и пароля
     if (!!login && !!password) {
-      await this.props.authenticateUser(this.state); // отправка данных в редакс, для аутентификации пользователя
+      await this.props.authenticateUser({ login, password });
       this.setState({ login: '', password: '' });
-      
-      // проверка аутентификации
+
       if (this.props.user === null) {
-        this.setState({ message: 'Имя пользователя или пароль введены неверно' });
+        this.setState({ message: 'Имя пользователя или пароль введены неверно', isRegistrationSuccessful: false });
       } else {
         localStorage.setItem('authenticateUser', JSON.stringify(this.props.user));
-        this.setState({ message: 'Аутентификация прошла успешно' });
-        window.location.replace('/profile');
+        this.setState({ message: 'Аутентификация прошла успешно', isRegistrationSuccessful: true }, () => {
+          setTimeout(() => {
+            window.location.replace(`${this.baseUrl}${routes.profile}`);
+          }, 500); // Задержка перед перенаправлением страницы
+        });
       }
-
     } else {
-      this.setState(state => ({ ...state, message: 'Вы ввели не все данные' }));
+      this.setState({ message: 'Вы ввели не все данные' });
     }
   };
 
   render() {
-    const { login, password, message } = this.state;
+    const { login, password, message, isRegistrationSuccessful } = this.state;
     const { user } = this.props;
 
     return (
       <div>
         <h1>Log In</h1>
-        {
-          !user
-          ? 
+        {!isRegistrationSuccessful ? (
           <>
             {!!message && <span>{message}</span>}
             <form className="login" onSubmit={this.handleSubmit}>
               <label htmlFor="login">Login:</label>
-              <input
-                type="text"
-                id="login"
-                name="login"
-                value={login}
-                onChange={this.handleChange}
-              />
-  
+              <input type="text" id="login" name="login" value={login} onChange={this.handleChange} />
+
               <label htmlFor="password">Password:</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={password}
-                onChange={this.handleChange}
-              />
-  
+              <input type="password" id="password" name="password" value={password} onChange={this.handleChange} />
+
               <button type="submit">Log In</button>
             </form>
-          </> 
-          :
+          </>
+        ) : (
           <span>{message}</span>
-        }
+        )}
       </div>
     );
   }

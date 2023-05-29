@@ -3,6 +3,7 @@ import './index.scss';
 import { connect } from "react-redux";
 import { RootState } from "../../redux/store";
 import { UserType, addNewUser, authenticateUser } from "../../redux/slices/users.slice";
+import routes from "../../routes";
 
 
 type ModifiedUserType = Omit<UserType, 'userId'>;
@@ -33,6 +34,7 @@ interface Props {
 }
 
 class Registration extends React.Component<Props, State> {
+  baseUrl: string = window.location.protocol + '//' + window.location.host;
 
   constructor(props: Props) {
     super(props);
@@ -50,14 +52,18 @@ class Registration extends React.Component<Props, State> {
     const user: string | null = localStorage.getItem("authenticateUser")
     
     // первая проверка авторизации, при монтировании
-    !!user && (window.location.replace('/profile')); // хук useNavigate - не совместим с классовой компонентой
+    if (!!user) {
+      window.location.replace(`${this.baseUrl}${routes.profile}`); // хук useNavigate - не совместим с классовой компонентой
+      this.setState({isRegistrationSuccessful: true});
+    }
+    
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any): void {
     const { user } = this.props;
     
     // первая проверка авторизации, при монтировании
-    !!user && (window.location.replace('/login')); // хук useNavigate - не совместим с классовой компонентой
+    !!user && (window.location.replace(`${this.baseUrl}${routes.login}`)); // хук useNavigate - не совместим с классовой компонентой
   }
 
   // ввод новых изменений в state
@@ -124,7 +130,7 @@ class Registration extends React.Component<Props, State> {
     return (
       <div className="registration">
         {
-          !!this.props.user 
+          !!isRegistrationSuccessful 
           ? 
           <h1>Вы уже авторизованы</h1>
           :
@@ -136,7 +142,7 @@ class Registration extends React.Component<Props, State> {
               
               <div>
                 <span>регистрация прошла успешно.</span>
-                <div><button onClick={() => window.location.replace('/login')}>перейти к авторизации</button></div>
+                <div><button onClick={() => window.location.replace(`${this.baseUrl}${routes.login}`)}>перейти к авторизации</button></div>
                 <div><button onClick={() => this.setState({ isRegistrationSuccessful: false })}>остаться здесь</button></div>
               </div> :
   

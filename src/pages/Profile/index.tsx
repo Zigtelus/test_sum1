@@ -3,20 +3,21 @@ import './index.scss';
 import { connect } from "react-redux";
 import { RootState } from "../../redux/store";
 import { UserType, authenticateUser } from "../../redux/slices/users.slice";
+import routes from "../../routes";
 
 
 interface Props {
-  user: UserType | null; // авторизованный пользователь
   authenticateUser: (data: null) => void; // разлогин
 }
 
 class Profile extends React.Component<Props> {
-
   componentDidMount = async () => {
-    const user: string | null = localStorage.getItem("authenticateUser");
+    const baseUrl = window.location.protocol + '//' + window.location.host;
+    const userString = localStorage.getItem("authenticateUser");
+    const user: UserType | null = userString ? JSON.parse(userString) : null;
     
     // первая проверка авторизации, при монтировании
-    !!user || (window.location.replace('/login')); // хук useNavigate - не совместим с классовой компонентой
+    !!user || (window.location.replace(`${baseUrl}${routes.login}`)); // хук useNavigate - не совместим с классовой компонентой
   };
 
   handleLogout = () => {
@@ -25,15 +26,18 @@ class Profile extends React.Component<Props> {
   };
 
   render() {
+    const userString = localStorage.getItem("authenticateUser");
+    const user: UserType | null = userString ? JSON.parse(userString) : null;
+
     return (
       <div>
         {
-          !!this.props.user 
+          !!user 
           ? 
           <>
-            <h1> Здравствуйте, {this.props.user.name}</h1>
+            <h1> Здравствуйте, {user.name}</h1>
             {
-              !!this.props.user?.name && 
+              !!user.name && 
               <button onClick={this.handleLogout}>logout</button>
             }
           </> 
@@ -45,14 +49,8 @@ class Profile extends React.Component<Props> {
   }
 }
 
-
-const mapStateToProps = (state: RootState) => ({
-  user: state.usersReducer.authenticateUser,
-});
-
 const mapDispatchToProps = {
   authenticateUser
 };
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default connect(null, mapDispatchToProps)(Profile);

@@ -24,14 +24,16 @@ class App extends React.Component <Props> {
     // проверка зарегистриарованных пользователей
     const users: string | null = localStorage.getItem("users")
 
-    !!users && 
-    await this.props.addUsers(JSON.parse(users))
+    if (!!users) {
+      await this.props.addUsers(JSON.parse(users))
+    }
 
     // проверка на наличи авторизованного пользователя
     const user: string | null = localStorage.getItem("authenticateUser")
 
-    !!user && 
-    await this.props.authenticateUser(JSON.parse(user))
+    if (!!user) {
+      await this.props.authenticateUser(JSON.parse(user))
+    }
   }
 
 
