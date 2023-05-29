@@ -131,7 +131,7 @@ class Registration extends React.Component<Props, State> {
   };
 
   render() {
-    const { errors, isRegistrationSuccessful } = this.state;
+    const { errors } = this.state;
 
     return (
       <div className="registration">

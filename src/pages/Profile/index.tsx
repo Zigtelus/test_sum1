@@ -1,7 +1,6 @@
 import React from "react";
 import './index.scss';
 import { connect } from "react-redux";
-import { RootState } from "../../redux/store";
 import { UserType, authenticateUser } from "../../redux/slices/users.slice";
 import routes from "../../routes";
 
