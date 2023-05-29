@@ -1,9 +1,9 @@
 import React, { ChangeEvent, FormEvent } from 'react';
 import './index.scss';
 import { connect } from 'react-redux';
-import { RootState } from '../../redux/store';
 import { UserType, authenticateUser } from "../../redux/slices/users.slice";
 import routes from '../../routes';
+import { RootState } from '../../redux/store';
 
 interface State {
   // Хранение значений полей формы входа
@@ -15,8 +15,11 @@ interface State {
 }
 
 interface Props {
+  changePath: (path: string) => void;
+  isUserRegistered: boolean;
+
   // данные зарегистррованного пользователя
-  user: UserType | null; 
+  user: UserType | null;
 
   // отправка данных в стор о регистрации/разактивации пользователя
   authenticateUser: (data:  Omit<UserType, 'name' | 'userId'>) => void; 
@@ -36,13 +39,12 @@ class LogIn extends React.Component<Props, State> {
   }
 
   componentDidMount = async () => {
-    // получение данных о авторизованном пользователе
-    const user: string | null = localStorage.getItem("authenticateUser"); 
+
+    const {changePath, isUserRegistered} = this.props;
 
     // Проверка авторизации при монтировании компонента
-    if (!!user) {
-      this.setState({ message: 'Вы уже авторизованы', isRegistrationSuccessful: true });
-      window.location.replace(`${this.baseUrl}${routes.profile}`); // хук useNavigate - не совместим с классовой компонентой
+    if (isUserRegistered) {
+      changePath(routes.profile) // изменение адрессной строки с сохранением в истории
     }
   };
 
@@ -71,12 +73,13 @@ class LogIn extends React.Component<Props, State> {
       } else {
 
         // обновление информации о авторизации пользователя в localStorage 
-        localStorage.setItem('authenticateUser', JSON.stringify(this.props.user)); 
+        localStorage.setItem("authenticateUser", JSON.stringify(this.props.user))
 
         this.setState({ message: 'Аутентификация прошла успешно', isRegistrationSuccessful: true });
+        this.props.authenticateUser(this.props.user)
 
         // переадрессация на страницу профиля
-        window.location.replace(`${this.baseUrl}${routes.profile}`); 
+        this.props.changePath(routes.profile)
       }
     } else {
       this.setState({ message: 'Вы ввели не все данные' });
@@ -84,12 +87,12 @@ class LogIn extends React.Component<Props, State> {
   };
 
   render() {
-    const { login, password, message, isRegistrationSuccessful } = this.state;
+    const { login, password, message } = this.state;
 
     return (
       <div>
         <h1>Log In</h1>
-        {!isRegistrationSuccessful ? (
+        {!this.props.user ? (
           <>
             {!!message && <span>{message}</span>}
             <form className="login" onSubmit={this.handleSubmit}>
@@ -111,7 +114,7 @@ class LogIn extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: RootState) => ({
-  user: state.usersReducer.authenticateUser,
+  user: state.usersReducer.authenticateUser
 });
 
 const mapDispatchToProps = {

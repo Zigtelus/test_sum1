@@ -3,10 +3,14 @@ import './index.scss';
 import { connect } from "react-redux";
 import { UserType, authenticateUser } from "../../redux/slices/users.slice";
 import routes from "../../routes";
+import { RootState } from "../../redux/store";
 
 
 interface Props {
-  authenticateUser: (data: null) => void; 
+  changePath: (path: string) => void;
+  user: UserType | null
+  authenticateUser: (user: Omit<UserType, 'name' | 'userId'> | null)=> void;
+  isUserRegistered: boolean;
 }
 
 interface State {
@@ -14,20 +18,15 @@ interface State {
 }
 
 class Profile extends React.Component<Props, State> {
-  baseUrl: string = window.location.protocol + '//' + window.location.host;
-
-  // получение данных о авторизации пользователя
-  userString: string | null= localStorage.getItem("authenticateUser") 
-
-  state: State = {
-    isRegistrationSuccessful: false
-  };
 
   componentDidMount = async () => {
-    const user: UserType | null = this.userString ? JSON.parse(this.userString) : null;
     
+    const {changePath, isUserRegistered} = this.props
+
     // первая проверка авторизации пользователя, при монтировании компоненты
-    !!user || (window.location.replace(`${this.baseUrl}${routes.login}`)); // хук useNavigate - не совместим с классовой компонентой
+    if (!isUserRegistered) {
+      changePath(routes.login)
+    }
   };
 
   handleLogout = async () => {
@@ -36,13 +35,12 @@ class Profile extends React.Component<Props, State> {
     this.props.authenticateUser(null);
 
     this.setState({isRegistrationSuccessful: false});
-    window.location.replace(`${this.baseUrl}${routes.login}`);
+    this.props.changePath(routes.login)
   };
 
   render() {
-    // получение данных о авторизованным пользователе
-    const user: UserType | null = this.userString ? JSON.parse(this.userString) : null; 
-
+    const { user } = this.props
+    
     return (
       <div>
         {
@@ -58,14 +56,18 @@ class Profile extends React.Component<Props, State> {
           :
           <h1>Вы не авторизованы</h1>
         }
-        {this.state.isRegistrationSuccessful && <p>Регистрация прошла успешно!</p>}
+        {!!this.props.user && <p>Регистрация прошла успешно!</p>}
       </div>
     );
   }
 }
 
+const mapStateToProps = (state: RootState) => ({
+  user: state.usersReducer.authenticateUser
+});
+
 const mapDispatchToProps = {
   authenticateUser
 };
 
-export default connect(null, mapDispatchToProps)(Profile);
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);

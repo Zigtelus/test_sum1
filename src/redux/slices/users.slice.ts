@@ -42,6 +42,7 @@ const usersSlice = createSlice({
       if (payload !== null) {
         const { login, password } = payload;
         const user = state.data.find((u) => u.login === login && u.password === password);
+
         state.authenticateUser = user ?? null;
       } else {
         state.authenticateUser = null;
@@ -50,7 +51,7 @@ const usersSlice = createSlice({
   }
 });
 
-export type { UserType }
+export type { UserType };
 
 export const { addNewUser, addUsers, changeLoading, authenticateUser } = usersSlice.actions;
 export default usersSlice.reducer;

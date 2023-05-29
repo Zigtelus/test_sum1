@@ -27,6 +27,11 @@ interface State {
 }
 
 interface Props {
+  // пропсы от родителя
+  changePath: (path: string) => void; // изменение url
+  isUserRegistered: boolean;
+  
+  // пропсы редакс
   users: ModifiedUserType[]; // список пользователей из Redux-хранилища.
   addNewUser: (user: ModifiedUserType) => void;
   user: UserType | null;
@@ -47,23 +52,22 @@ class Registration extends React.Component<Props, State> {
       isRegistrationSuccessful: false,
     };
   }
-
-  componentDidMount = async () => {
-    const user: string | null = localStorage.getItem("authenticateUser")
+  
+  componentDidMount = () => {
+    // const user: string | null = localStorage.getItem("authenticateUser")
+    const {changePath, isUserRegistered} = this.props
     
     // первая проверка авторизации, при монтировании
-    if (!!user) {
-      window.location.replace(`${this.baseUrl}${routes.profile}`); // хук useNavigate - не совместим с классовой компонентой
-      this.setState({isRegistrationSuccessful: true});
+    if (isUserRegistered) {
+      changePath(routes.profile) // изменение адрессной строки с сохранением в истории
     }
-    
   }
 
-  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any): void {
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
     const { user, users } = this.props;
     
     // проверка авторизации, при монтировании
-    !!user && (window.location.replace(`${this.baseUrl}${routes.login}`)); // хук useNavigate - не совместим с классовой компонентой
+    !!user && this.props.changePath && this.props.changePath(routes.login)
 
     // проверка на обновленные данные в сторе users
     if (users !== prevProps.users) {
@@ -144,11 +148,11 @@ class Registration extends React.Component<Props, State> {
             <h1>Registration</h1>
   
             {
-              this.props.user ?
+              this.state.isRegistrationSuccessful ?
               
               <div>
                 <span>регистрация прошла успешно.</span>
-                <div><button onClick={() => window.location.replace(`${this.baseUrl}${routes.login}`)}>перейти к авторизации</button></div>
+                <div><button onClick={() => !!this.props.changePath && this.props.changePath(routes.login)}>перейти к авторизации</button></div>
                 <div><button onClick={() => this.setState({ isRegistrationSuccessful: false })}>остаться здесь</button></div>
               </div> :
   
@@ -201,7 +205,7 @@ class Registration extends React.Component<Props, State> {
       </div>
     );
   }
-}
+};
 
 const mapStateToProps = (state: RootState) => ({
   users: state.usersReducer.data,

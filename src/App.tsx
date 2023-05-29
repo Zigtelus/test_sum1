@@ -4,59 +4,48 @@ import Nav from './components/Nav';
 import Main from './components/Main';
 import { Route, Routes } from 'react-router-dom';
 import routes from './routes';
-import Registration from './pages/Registration';
 import Home from './pages/Home';
-import Profile from './pages/Profile';
-import LogIn from './pages/LogIn';
-import { connect } from 'react-redux';
-import { UserType, authenticateUser, addUsers } from "./redux/slices/users.slice";
+import AuthRegistration from './pages/AuthRegistration';
 
-interface Props {
-  addUsers: (data: any) => void,
-  authenticateUser: (data: UserType) => void,
-};
+interface Props {};
 
-class App extends React.Component <Props> {
+interface State {
+  path: string;
+}
 
+class App extends React.Component <Props, State> {
 
-  componentDidMount = async () => {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      path: window.location.pathname,
+    };
+  }
 
-    // проверка зарегистриарованных пользователей
-    const users: string | null = localStorage.getItem("users")
-
-    if (!!users) {
-      await this.props.addUsers(JSON.parse(users))
-    }
-
-    // проверка на наличи авторизованного пользователя
-    const user: string | null = localStorage.getItem("authenticateUser")
-
-    if (!!user) {
-      await this.props.authenticateUser(JSON.parse(user))
-    }
+  // изменение стейта при смене одного из трех маршрутов
+  changePath =(path: string)=> {
+    window.history.pushState(null, '', path); // изменение адрессной строки с сохранением в истории
+    this.setState({path: path})
   }
 
 
   render() {
+    const { path } = this.state;
+
     return (
       <div className="App">
-        <Nav />
+        <Nav changePath={this.changePath} />
         <Main>
           <Routes>
-            <Route path={routes.home} element={ <Home/> } />
-            <Route path={routes.profile} element={ <Profile/> } />
-            <Route path={routes.registration} element={ <Registration/> } />
-            <Route path={routes.login} element={ <LogIn/> } />
+            <Route path={routes.home} element={ <Home /> } />
+            <Route path={routes.profile} element={ <AuthRegistration changePath={this.changePath} path={path} /> } />
+            <Route path={routes.registration} element={ <AuthRegistration changePath={this.changePath} path={path} /> } />
+            <Route path={routes.login} element={ <AuthRegistration changePath={this.changePath} path={path} /> } />
           </Routes>
         </Main>
       </div>
     );
   }
-};
+}
 
-const mapDispatchToProps = {
-  authenticateUser,
-  addUsers
-};
-
-export default connect(null, mapDispatchToProps)(App);
+export default App;
