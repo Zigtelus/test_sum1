@@ -1,11 +1,11 @@
 Технологии:
 
-React
-Redux-Saga
-ToolKit
-react-router-dom
-TypeScript
-SASS
+1. React:
+2. Redux-Saga:
+3. ToolKit:
+4. react-router-dom:
+5. TypeScript:
+6. SASS:
 
 В проекте используются классовые компоненты с последней версией Реакта, что накладывает некоторые ограничения, о которых ранее я не знал:
 
