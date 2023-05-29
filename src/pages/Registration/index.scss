@@ -1,0 +1,17 @@
+
+
+.registration {
+  label {
+    margin: 10px 0 7px 0;
+  }
+
+  input[type="submit"] {
+    margin-top: 20px;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+  }
+}

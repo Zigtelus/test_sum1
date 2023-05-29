@@ -1,0 +1,17 @@
+.nav ul {
+  list-style-type: none;
+  width: 500px;
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+
+  li a {
+    padding: 7px;
+    background: #952c2c;
+    color: white;
+
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+}
