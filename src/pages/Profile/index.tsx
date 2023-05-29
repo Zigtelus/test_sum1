@@ -12,10 +12,6 @@ interface Props {
 
 class Profile extends React.Component<Props> {
 
-  constructor(props: Props) {
-    super(props);
-  }
-
   componentDidMount = async () => {
     const user: string | null = localStorage.getItem("authenticateUser");
     
