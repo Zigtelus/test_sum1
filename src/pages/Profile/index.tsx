@@ -8,7 +8,7 @@ import { RootState } from "../../redux/store";
 
 interface Props {
   changePath: (path: string) => void;
-  user: UserType | null
+  user: UserType | null;
   authenticateUser: (user: Omit<UserType, 'name' | 'userId'> | null)=> void;
   isUserRegistered: boolean;
 }
@@ -56,7 +56,6 @@ class Profile extends React.Component<Props, State> {
           :
           <h1>Вы не авторизованы</h1>
         }
-        {!!this.props.user && <p>Регистрация прошла успешно!</p>}
       </div>
     );
   }
