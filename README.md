@@ -1,4 +1,4 @@
-Ссылка на кликабельный вариант: https://kind-bay-0649a8110.3.azurestaticapps.net/login
+Ссылка на кликабельный вариант: https://kind-bay-0649a8110.3.azurestaticapps.net/
 
 Технологии:
 
