@@ -1,3 +1,5 @@
+Ссылка на кликабельный вариант: https://kind-bay-0649a8110.3.azurestaticapps.net/login
+
 Технологии:
 
 1. React:
